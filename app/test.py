@@ -10,4 +10,4 @@ class test_api(Resource):
         ans = []
         for doc in docs:
             ans.append(doc.to_dict())
-        return {'result': ans}
+        return {'data': ans}

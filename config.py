@@ -7,7 +7,7 @@ if "INCONTAINER" in os.environ:
 else:
     os.environ['http_proxy'] = 'http://127.0.0.1:10809'
     os.environ['https_proxy'] = 'http://127.0.0.1:10809'
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key/GoogoScholar-1ed0494958b6.json'
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key/GugooScholar-4b624617fdda.json'
 
 
 class Config(object):
