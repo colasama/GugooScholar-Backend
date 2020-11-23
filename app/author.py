@@ -1,17 +1,35 @@
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-from google.cloud import firestore
 
 from .init import db
 from .init import querycl
 
-class search(Resource):
+class Search(Resource):
     def get(self):
         parser = RequestParser()
         parser.add_argument("words", type=str,
                             location="args", required=True)
+        parser.add_argument("start_at", type=int,
+                            location="args", required=False)
         req = parser.parse_args()
         words = req.get("words")
-        print(words)
-        res = querycl.query("author", "name", words, limit=10)
-        return{'data': res}
+        offset = req.get("start_at")
+        print(offset)
+        author_ids = querycl.query("author", "name", terms=words, offset=offset,limit=10)
+        authors = []
+        for id in author_ids:
+            authors.append(db.collection('author').document(id).get().to_dict())
+        return{'data': authors}
+
+class Author(Resource):
+    def get(self,author_id):
+        auhtor =  db.collection('author').document(author_id).get()
+        if auhtor.exists:
+            return{
+                'success': True,
+                'data': auhtor.to_dict()}
+        else:
+            return{
+                'success': False,
+                'message': '作者不存在'},404
+        

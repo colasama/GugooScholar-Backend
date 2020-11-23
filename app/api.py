@@ -5,5 +5,8 @@ from . import test
 from . import author
 
 api = Api(app)
+#test
 api.add_resource(test.test_api, '/test')
-api.add_resource(author.search,'/author/search')
+#author
+api.add_resource(author.Search,'/author/search')
+api.add_resource(author.Author,'/author/<string:author_id>')
