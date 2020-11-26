@@ -25,13 +25,14 @@ class PaperByID(Resource):
         |    abstract    |    false    |    string   |    摘要    |
         |    venue    |    ture    |    string   |    所属期刊/会议，ID/名称    |
         |    year    |    ture    |    int   |    发表年份    |
+        |    n_citation    |    ture    |    int   |    被引量    |
         |    keywords    |    true    |    list   |    关键词    |
         |    doi    |    true    |    string   |    doi号    |
         |    lang    |    ture    |    string   |   语言   |
         |    page_start    |    ture    |    int   |        |
         |    page_end    |    ture    |    int   |        |
-        |    volume    |    ture    |    string   |        |
-        |    issue    |    ture    |    string   |        |
+        |    volume    |    ture    |    string   |   所属卷数    |
+        |    issue    |    ture    |    string   |    所属期数   |
         |    issn    |    ture    |    string   |        |
         |    isbn    |    ture    |    string   |        |
         |    pdf    |    ture    |    string   |    原文链接    |
@@ -49,3 +50,52 @@ class PaperByID(Resource):
             return{
                 'success': False,
                 'message': '论文不存在'}, 404
+
+class PaperRank(Resource):
+    def get(self):
+        """
+        @@@
+        ## 获取排序的论文列表
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    order_by   |    false    |    string   |   排序字段    |
+        |    start_after   |    true    |    string   |    偏移游标    |
+
+        排序字段可选：n_citation，year，id
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |    排好序的的论文列表    |
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument("order_by", type=str,
+                            location="args", required=True)
+        parser.add_argument("start_after", type=str,
+                            location="args", required=False)
+        req = parser.parse_args()
+        order_by = req.get("order_by")
+        start_after = req.get("start_after")
+        papers = []
+        if order_by == "id":
+            ref = db.collection('paper')
+        else:
+            ref = db.collection('paper').order_by(order_by, direction=desc)
+        start_after = db.collection('paper').document(start_after).get()
+        if start_after.exists:
+            ref = ref.start_after(start_after).limit(20).stream()
+        else:
+            ref = ref.limit(20).stream()
+        for paper in ref:
+            a_id = paper.id
+            paper = paper.to_dict()
+            paper['id'] = a_id
+            papers.append(paper)
+        return{
+            'success': True,
+            'data': papers
+        }
+        

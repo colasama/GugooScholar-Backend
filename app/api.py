@@ -22,5 +22,6 @@ api.add_resource(author.AuthorByOrg,'/author/org')
 api.add_resource(author.AuthorRank,'/author/rank')
 # paper
 api.add_resource(paper.PaperByID,'/paper/<string:paper_id>')
+api.add_resource(paper.PaperRank,'/paper/rank')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.0.1')
