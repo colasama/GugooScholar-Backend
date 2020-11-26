@@ -10,6 +10,7 @@ class SearchAuthor(Resource):
     def get(self):
         """
         @@@
+        ## 搜索作者
         ### args
 
         | 参数名 | 是否可选 | 类型 | 备注 |
@@ -47,6 +48,7 @@ class AuthorByID(Resource):
     def get(self, author_id):
         """
         @@@
+        ## 根据ID获取作者
         ### args
 
         无
@@ -76,10 +78,53 @@ class AuthorByID(Resource):
                 'message': '作者不存在'}, 404
 
 
+class AuthorDoc(Resource):
+    def get(self,author_id):
+        """
+        @@@
+        ## 获取该作者的论文
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    start_after   |    true    |    string   |    偏移游标    |
+
+        
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |        |
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument("start_after", type=str,
+                            location="args", required=False)
+        req = parser.parse_args()
+        start_after = req.get("start_after")
+        ref = db.collection('paper').where(u'authors',u'array_contains',author_id)
+        papers = []
+        start_after = db.collection('paper').document(start_after).get()
+        if start_after.exists:
+            ref = ref.start_after(start_after).limit(20).stream()
+        else:
+            ref = ref.limit(20).stream()
+        for paper in ref:
+            p_id = paper.id
+            paper = paper.to_dict()
+            paper['id'] = p_id
+            papers.append(paper)
+        return{
+            'success': True,
+            'data': papers
+        }
+
+
 class AuthorByOrg(Resource):
     def get(self):
         """
         @@@
+        ## 根据机构获取作者
         ### args
 
         | 参数名 | 是否可选 | type | remark |
@@ -124,19 +169,20 @@ class AuthorRank(Resource):
     def get(self):
         """
         @@@
+        ## 获取排序的作者列表
         ### args
 
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
         |    order_by   |    false    |    string   |   排序字段    |
         |    start_after   |    true    |    string   |    偏移游标    |
-        
+
         排序字段可选：h_index，n_pubs，n_citation, id，orgs(一般不用)
         ### return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
-        |   \   |    false    |    list   |    按照H指数排序的作者列表    |
+        |   \   |    false    |    list   |    排好序的的作者列表    |
         @@@
         """
         parser = RequestParser()
