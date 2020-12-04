@@ -177,8 +177,8 @@ class PaperDoi(Resource):
         parser.add_argument("doi", type=str,
                             location="args", required=True)
         req = parser.parse_args()
-        org = req.get("doi")
-        ref = db.collection('author').where(u'orgs', u'==', org).limit(20).stream()
+        doi = req.get("doi")
+        ref = db.collection('paper').where(u'doi', u'==', doi).limit(1).stream()
         papers = []
         for paper in ref:
             p_id = paper.id
