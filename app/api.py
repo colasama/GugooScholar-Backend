@@ -23,7 +23,7 @@ api.add_resource(author.AuthorRelation,'/author/<string:author_id>/relation')
 api.add_resource(paper.PaperByID,'/paper/<string:paper_id>')
 api.add_resource(paper.PaperRank,'/paper/rank')
 api.add_resource(paper.SearchPaper,'/paper/search')
-api.add_resource(paper.PaperByID,'/paper/doi')
+api.add_resource(paper.PaperDoi,'/paper/doi')
 #user
 api.add_resource(user.Register,'/user/register')
 #文档生成
