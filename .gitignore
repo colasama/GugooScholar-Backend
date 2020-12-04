@@ -126,3 +126,6 @@ dmypy.json
 
 #GCP key
 /key
+
+#vscode
+/.vscode
