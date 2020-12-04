@@ -3,9 +3,7 @@ from config import Config
 from flask_restful import Api
 from flask_docs import ApiDoc
 
-from app.resources import help
-from app.resources import author
-from app.resources import paper
+from app.resources import help, user, author, paper
 
 
 # app init
@@ -25,5 +23,8 @@ api.add_resource(author.AuthorRelation,'/author/<string:author_id>/relation')
 api.add_resource(paper.PaperByID,'/paper/<string:paper_id>')
 api.add_resource(paper.PaperRank,'/paper/rank')
 api.add_resource(paper.SearchPaper,'/paper/search')
+api.add_resource(paper.PaperByID,'/paper/doi')
+#user
+api.add_resource(user.Register,'/user/register')
 #文档生成
-ApiDoc(app,title='Gugoo API Doc',version='0.0.1')
+ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
