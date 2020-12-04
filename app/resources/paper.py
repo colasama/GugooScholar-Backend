@@ -150,6 +150,6 @@ class SearchPaper(Resource):
         papers = []
         for id in paper_ids:
             paper = db.collection('paper').document(id).get().to_dict()
-            papers['id'] = id
+            paper['id'] = id
             papers.append(paper)
         return{'data': papers}
