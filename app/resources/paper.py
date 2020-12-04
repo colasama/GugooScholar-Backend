@@ -63,7 +63,7 @@ class PaperRank(Resource):
         |    order_by   |    false    |    string   |   排序字段    |
         |    start_after   |    true    |    string   |    偏移游标    |
 
-        排序字段可选：n_citation，year，id
+        排序字段可选：n_citation, year, id
         ### return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
@@ -153,3 +153,39 @@ class SearchPaper(Resource):
             paper['id'] = id
             papers.append(paper)
         return{'data': papers}
+
+
+class PaperDoi(Resource):
+    def get(self):
+        """
+        @@@
+        ## 根据DOI获取论文
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    doi    |    false    |    string   |    doi号    |
+
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |    一般情况只会有一个或0个    |
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument("doi", type=str,
+                            location="args", required=True)
+        req = parser.parse_args()
+        org = req.get("doi")
+        ref = db.collection('author').where(u'orgs', u'==', org).limit(20).stream()
+        papers = []
+        for paper in ref:
+            p_id = paper.id
+            paper = paper.to_dict()
+            paper['id'] = p_id
+            papers.append(paper)
+        return{
+            'success': True,
+            'data': papers
+        }

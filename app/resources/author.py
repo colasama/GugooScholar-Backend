@@ -240,6 +240,8 @@ class AuthorRelation(Resource):
             paper = paper.to_dict()
             authors = paper['authors']
             for author in authors:
+                if author == author_id:
+                    continue
                 if author in weight:
                     weight[author] += 1
                 else:
