@@ -99,3 +99,57 @@ class PaperRank(Resource):
             'data': papers
         }
         
+
+class SearchPaper(Resource):
+    def get(self):
+        """
+        @@@
+        ## 搜索论文
+        ### args
+
+        | 参数名 | 是否可选 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |    words    |    false    |    string   |    检索关键词    |
+        |    type    |    false    |    string   |    检索类别    |
+        |    offset    |    true    |    int   |    偏移量    |
+
+        type可选 title keywords abstract
+
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |    检索结果    |
+
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument("words", type=str,
+                            location="args", required=True)
+        parser.add_argument("type", type=str,
+                            location="args", required=True)
+        parser.add_argument("offset", type=int,
+                            location="args", required=False)
+        req = parser.parse_args()
+        words = req.get("words")
+        search_type = req.get("type")
+        search_db = ""
+        offset = req.get("offset")
+        if search_type == 'title' :
+            search_db = "paperT"
+        elif search_type == 'keywords':
+            search_db = 'paperK'
+        elif search_type == 'abstract':
+            search_db = 'paperA'
+        else:
+            return {
+                'success': False,
+                'message': '检索类型错误'}, 400
+        paper_ids = querycl.query(
+            search_db, search_type, terms=words, offset=offset, limit=20)
+        papers = []
+        for id in paper_ids:
+            paper = db.collection('paper').document(id).get().to_dict()
+            papers['id'] = id
+            papers.append(paper)
+        return{'data': papers}

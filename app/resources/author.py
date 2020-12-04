@@ -79,7 +79,7 @@ class AuthorByID(Resource):
 
 
 class AuthorDoc(Resource):
-    def get(self,author_id):
+    def get(self, author_id):
         """
         @@@
         ## 获取该作者的论文
@@ -89,7 +89,7 @@ class AuthorDoc(Resource):
         |--------|--------|--------|--------|
         |    start_after   |    true    |    string   |    偏移游标    |
 
-        
+
         ### return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
@@ -102,7 +102,8 @@ class AuthorDoc(Resource):
                             location="args", required=False)
         req = parser.parse_args()
         start_after = req.get("start_after")
-        ref = db.collection('paper').where(u'authors',u'array_contains',author_id)
+        ref = db.collection('paper').where(
+            u'authors', u'array_contains', author_id)
         papers = []
         start_after = db.collection('paper').document(start_after).get()
         if start_after.exists:
@@ -211,4 +212,53 @@ class AuthorRank(Resource):
         return{
             'success': True,
             'data': authors
+        }
+
+
+class AuthorRelation(Resource):
+    def get(self, author_id):
+        """
+        @@@
+        ## 根据ID获取作者关系图谱
+        ### args
+
+        无
+
+        ### return
+        - #### data
+        > | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    列表   |    有合作关系的作者，仅保留前20位    |
+        相比与一般的作者数据，返回地数据中增加了weight，表示合作篇数
+        @@@
+        """
+        ref = db.collection('paper').where(
+            u'authors', u'array_contains', author_id)
+        weight = {}
+        ref = ref.limit(100).stream()
+        for paper in ref:
+            paper = paper.to_dict()
+            authors = paper['authors']
+            for author in authors:
+                if author in weight:
+                    weight[author] += 1
+                else:
+                    weight[author] = 1
+        weight = sorted(weight.items(), key=lambda x: x[1], reverse=True)
+        auhtors = []
+        for author in weight[0:10]:
+            doc = db.collection('author').document(author[0]).get()
+            if doc.exists:
+                doc = doc.to_dict()
+                doc['id'] = author[0]
+                doc['weight'] = author[1]
+            else:
+                doc = {
+                    'name': author[0],
+                    'weight': author[1],
+                }
+            auhtors.append(doc)
+        return{
+            'success': True,
+            'data': auhtors,
         }

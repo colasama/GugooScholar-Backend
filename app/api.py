@@ -18,10 +18,12 @@ api.add_resource(help.Help, '/')
 api.add_resource(author.SearchAuthor, '/author/search')
 api.add_resource(author.AuthorByID, '/author/<string:author_id>')
 api.add_resource(author.AuthorDoc,'/author/<string:author_id>/paper')
-api.add_resource(author.AuthorByOrg,'/author/org')
+api.add_resource(author.AuthorByOrg,'/author/byorg')
 api.add_resource(author.AuthorRank,'/author/rank')
+api.add_resource(author.AuthorRelation,'/author/<string:author_id>/relation')
 # paper
 api.add_resource(paper.PaperByID,'/paper/<string:paper_id>')
 api.add_resource(paper.PaperRank,'/paper/rank')
+api.add_resource(paper.SearchPaper,'/paper/search')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.0.1')
