@@ -41,8 +41,8 @@ class PaperByID(Resource):
         """
         paper = db.collection('paper').document(paper_id).get()
         if paper.exists:
-            auhtor = paper.to_dict()
-            auhtor['id'] = paper_id
+            paper = paper.to_dict()
+            paper['id'] = paper_id
             return{
                 'success': True,
                 'data': paper.to_dict()}
@@ -149,9 +149,11 @@ class SearchPaper(Resource):
             search_db, search_type, terms=words, offset=offset, limit=20)
         papers = []
         for id in paper_ids:
-            paper = db.collection('paper').document(id).get().to_dict()
-            paper['id'] = id
-            papers.append(paper)
+            paper = db.collection('paper').document(id).get()
+            if paper.exists:
+                paper = paper.to_dict()
+                paper['id'] = id
+                papers.append(paper)
         return{'data': papers}
 
 
