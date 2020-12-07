@@ -2,6 +2,8 @@ from flask import Flask
 from config import Config
 from flask_restful import Api
 from flask_docs import ApiDoc
+from flask_compress import Compress
+
 
 from app.resources import help, user, author, paper
 
@@ -28,3 +30,5 @@ api.add_resource(paper.PaperDoi,'/paper/doi')
 api.add_resource(user.Register,'/user/register')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
+#压缩
+Compress(app)
