@@ -45,7 +45,7 @@ class PaperByID(Resource):
             paper['id'] = paper_id
             return{
                 'success': True,
-                'data': paper.to_dict()}
+                'data': paper}
         else:
             return{
                 'success': False,
