@@ -3,6 +3,7 @@ from config import Config
 from flask_restful import Api
 from flask_docs import ApiDoc
 from flask_compress import Compress
+from flask_cors import CORS
 
 
 from app.resources import help, user, author, paper
@@ -32,3 +33,5 @@ api.add_resource(user.Register,'/user/register')
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
 #压缩
 Compress(app)
+#跨域
+CORS(app, supports_credentials=True)
