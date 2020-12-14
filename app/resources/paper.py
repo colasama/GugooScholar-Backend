@@ -191,3 +191,48 @@ class PaperDoi(Resource):
             'success': True,
             'data': papers
         }
+
+
+class PaperVenue(Resource):
+    def get(self):
+        """
+        @@@
+        ## 根据出版物获取论文
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    venue    |    false    |    string   |    venue id    |
+        |    start_after   |    true    |    string   |    偏移游标    |
+
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |    该出版物下属的论文    |
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument("venue", type=str,
+                            location="args", required=True)
+        parser.add_argument("start_after", type=str,
+                            location="args", required=False)
+        req = parser.parse_args()
+        venue = req.get("venue")
+        start_after = req.get("start_after")
+        ref = db.collection('paper').where(u'venue', u'==', venue)
+        start_after = db.collection('paper').document(start_after).get()
+        if start_after.exists:
+            ref = ref.start_after(start_after).limit(20).stream()
+        else:
+            ref = ref.limit(20).stream()
+        papers = []
+        for paper in ref:
+            p_id = paper.id
+            paper = paper.to_dict()
+            paper['id'] = p_id
+            papers.append(paper)
+        return{
+            'success': True,
+            'data': papers
+        }

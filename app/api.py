@@ -27,6 +27,7 @@ api.add_resource(paper.PaperByID,'/paper/<string:paper_id>')
 api.add_resource(paper.PaperRank,'/paper/rank')
 api.add_resource(paper.SearchPaper,'/paper/search')
 api.add_resource(paper.PaperDoi,'/paper/doi')
+api.add_resource(paper.PaperVenue,'/paper/venue')
 #user
 api.add_resource(user.Register,'/user/register')
 #文档生成
