@@ -6,6 +6,18 @@ from app.common.util import querycl
 from app.common.util import desc
 
 
+def get_authors(authors:list):
+    for i in range(len(authors)):
+        author = db.collection('author').document(authors[i]).get()
+        if author.exists:
+            author = author.to_dict()
+            author['id'] = authors[i]
+        else:
+            author = {'name':authors[i]}
+        authors[i] = author
+    print(authors)
+    
+
 class PaperByID(Resource):
     def get(self,paper_id):
         """
@@ -43,6 +55,7 @@ class PaperByID(Resource):
         if paper.exists:
             paper = paper.to_dict()
             paper['id'] = paper_id
+            get_authors(paper['authors'])
             return{
                 'success': True,
                 'data': paper}
@@ -93,6 +106,7 @@ class PaperRank(Resource):
             a_id = paper.id
             paper = paper.to_dict()
             paper['id'] = a_id
+            get_authors(paper['authors'])
             papers.append(paper)
         return{
             'success': True,
@@ -153,6 +167,7 @@ class SearchPaper(Resource):
             if paper.exists:
                 paper = paper.to_dict()
                 paper['id'] = id
+                get_authors(paper['authors'])
                 papers.append(paper)
         return{'data': papers}
 
@@ -186,6 +201,7 @@ class PaperDoi(Resource):
             p_id = paper.id
             paper = paper.to_dict()
             paper['id'] = p_id
+            get_authors(paper['authors'])
             papers.append(paper)
         return{
             'success': True,
@@ -231,6 +247,7 @@ class PaperVenue(Resource):
             p_id = paper.id
             paper = paper.to_dict()
             paper['id'] = p_id
+            get_authors(paper['authors'])
             papers.append(paper)
         return{
             'success': True,
