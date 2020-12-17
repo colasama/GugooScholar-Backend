@@ -3,7 +3,7 @@ from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from app import api
+from config import Config
 from app.common.util import db
 
 
@@ -13,8 +13,8 @@ def create_token(user_id):
     :param user_id: 用户id
     :return:
     """
-    s = Serializer(api.app.config['SECRET_KEY'],
-                   expires_in=api.app.config['TOKEN_EXPIRATION'])
+    s = Serializer(Config.SECRET_KEY,
+                   expires_in=Config.TOKEN_EXPIRATION)
     token = s.dumps({"id": user_id}).decode('ascii')
     return token
 
@@ -25,7 +25,7 @@ def verify_token(token):
     :param token:
     :return: 用户信息 or None
     '''
-    s = Serializer(api.app.config['SECRET_KEY'])
+    s = Serializer(Config.SECRET_KEY)
     try:
         data = s.loads(token)
     except Exception:
