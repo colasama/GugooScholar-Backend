@@ -93,7 +93,7 @@ class Register(Resource):
 
 
 class Login(Resource):
-    def post(parameter_list):
+    def post(self):
         """
         @@@
         ## 用户登录
@@ -112,9 +112,9 @@ class Login(Resource):
         @@@
         """
         parser = RequestParser()
-        parser.add_argument('name', type=str, required=True)
+        parser.add_argument('username', type=str, required=True)
         parser.add_argument("password", type=str, required=True)
-        req = parser.parse_args(strict=True)
+        req = parser.parse_args()
         username = req['username']
         password = req['password']
         users = db.collection('user')

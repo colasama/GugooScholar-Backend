@@ -5,6 +5,8 @@ from app.common.util import db
 from app.common.util import querycl
 from app.common.util import desc
 
+import json
+
 
 def get_authors(authors: list):
     for i in range(len(authors)):
@@ -272,3 +274,27 @@ class PaperVenue(Resource):
             'success': True,
             'data': papers
         }
+
+class GetField(Resource):
+    def get(self):
+        """
+        @@@
+        ## 获取所有领域（其实就是一部分关键词）
+        ### args
+
+        无
+
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |    所有领域    |
+        @@@
+        """
+        fields = db.collection('field').document('all_field').get()
+        if fields.exists:
+            fields = fields.to_dict()
+            fields = json.loads(fields['data'])
+            return{
+                'success': True,
+                'data': fields}

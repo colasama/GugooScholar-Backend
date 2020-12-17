@@ -28,6 +28,7 @@ api.add_resource(paper.PaperRank,'/paper/rank')
 api.add_resource(paper.SearchPaper,'/paper/search')
 api.add_resource(paper.PaperDoi,'/paper/doi')
 api.add_resource(paper.PaperVenue,'/paper/venue')
+api.add_resource(paper.GetField,'/paper/field')
 #user
 api.add_resource(user.Register,'/user/register')
 api.add_resource(user.Login,'/user/login')
