@@ -30,6 +30,7 @@ api.add_resource(paper.PaperDoi,'/paper/doi')
 api.add_resource(paper.PaperVenue,'/paper/venue')
 #user
 api.add_resource(user.Register,'/user/register')
+api.add_resource(user.Login,'/user/login')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
 #压缩
