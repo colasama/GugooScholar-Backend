@@ -1,10 +1,9 @@
-from datetime import date
+from app.common.util import db
+from config import Config
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from config import Config
-from app.common.util import db
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 def create_token(user_id):
