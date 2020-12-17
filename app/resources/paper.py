@@ -6,20 +6,32 @@ from app.common.util import querycl
 from app.common.util import desc
 
 
-def get_authors(authors:list):
+def get_authors(authors: list):
     for i in range(len(authors)):
         author = db.collection('author').document(authors[i]).get()
         if author.exists:
             author = author.to_dict()
             author['id'] = authors[i]
         else:
-            author = {'name':authors[i]}
+            author = {'name': authors[i]}
         authors[i] = author
     print(authors)
-    
+
+
+def get_venue(paper: dict):
+    if 'venue' in paper:
+        venue = db.collection('venue').document(paper['venue']).get()
+        if venue.exists:
+            v_id = paper['venue']
+            paper['venue'] = venue.to_dict()
+            paper['venue']['id'] = v_id
+        else:
+            name = paper['venue']
+            paper['venue'] = {'name': name}
+
 
 class PaperByID(Resource):
-    def get(self,paper_id):
+    def get(self, paper_id):
         """
         @@@
         ## 根据ID获取论文
@@ -33,7 +45,7 @@ class PaperByID(Resource):
         |--------|--------|--------|--------|
         |    id    |    false    |    string   |    id    |
         |    title    |    false    |    string   |   标题    |
-        |    authors    |    false    |    list   |    作者列表，ID/姓名    |
+        |    authors    |    false    |    list   |    作者列表    |
         |    abstract    |    false    |    string   |    摘要    |
         |    venue    |    ture    |    string   |    所属期刊/会议，ID/名称    |
         |    year    |    ture    |    int   |    发表年份    |
@@ -55,6 +67,7 @@ class PaperByID(Resource):
         if paper.exists:
             paper = paper.to_dict()
             paper['id'] = paper_id
+            get_venue(paper)
             get_authors(paper['authors'])
             return{
                 'success': True,
@@ -63,6 +76,7 @@ class PaperByID(Resource):
             return{
                 'success': False,
                 'message': '论文不存在'}, 404
+
 
 class PaperRank(Resource):
     def get(self):
@@ -106,13 +120,14 @@ class PaperRank(Resource):
             a_id = paper.id
             paper = paper.to_dict()
             paper['id'] = a_id
+            get_venue(paper)
             get_authors(paper['authors'])
             papers.append(paper)
         return{
             'success': True,
             'data': papers
         }
-        
+
 
 class SearchPaper(Resource):
     def get(self):
@@ -149,7 +164,7 @@ class SearchPaper(Resource):
         search_type = req.get("type")
         search_db = ""
         offset = req.get("offset")
-        if search_type == 'title' :
+        if search_type == 'title':
             search_db = "paperT"
         elif search_type == 'keywords':
             search_db = 'paperK'
@@ -167,6 +182,7 @@ class SearchPaper(Resource):
             if paper.exists:
                 paper = paper.to_dict()
                 paper['id'] = id
+                get_venue(paper)
                 get_authors(paper['authors'])
                 papers.append(paper)
         return{'data': papers}
@@ -195,12 +211,14 @@ class PaperDoi(Resource):
                             location="args", required=True)
         req = parser.parse_args()
         doi = req.get("doi")
-        ref = db.collection('paper').where(u'doi', u'==', doi).limit(1).stream()
+        ref = db.collection('paper').where(
+            u'doi', u'==', doi).limit(1).stream()
         papers = []
         for paper in ref:
             p_id = paper.id
             paper = paper.to_dict()
             paper['id'] = p_id
+            get_venue(paper)
             get_authors(paper['authors'])
             papers.append(paper)
         return{
@@ -247,6 +265,7 @@ class PaperVenue(Resource):
             p_id = paper.id
             paper = paper.to_dict()
             paper['id'] = p_id
+            get_venue(paper)
             get_authors(paper['authors'])
             papers.append(paper)
         return{
