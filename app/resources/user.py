@@ -3,7 +3,7 @@ from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from app.api import app
+from app import api
 from app.common.util import db
 
 
@@ -13,8 +13,8 @@ def create_token(user_id):
     :param user_id: 用户id
     :return:
     """
-    s = Serializer(app.config['SECRET_KEY'],
-                   expires_in=app.config['TOKEN_EXPIRATION'])
+    s = Serializer(api.app.config['SECRET_KEY'],
+                   expires_in=api.app.config['TOKEN_EXPIRATION'])
     token = s.dumps({"id": user_id}).decode('ascii')
     return token
 
@@ -25,7 +25,7 @@ def verify_token(token):
     :param token:
     :return: 用户信息 or None
     '''
-    s = Serializer(app.config['SECRET_KEY'])
+    s = Serializer(api.app.config['SECRET_KEY'])
     try:
         data = s.loads(token)
     except Exception:
@@ -39,7 +39,7 @@ class Register(Resource):
         @@@
         ## 用户注册
         ### args
-
+        参数位于body
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
         |    username    |    false    |    string   |    用户名，不能重复    |
