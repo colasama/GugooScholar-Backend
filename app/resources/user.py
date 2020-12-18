@@ -1,3 +1,4 @@
+from app.resources import author
 from app.common.util import db
 from app.common.util import mail
 from config import Config
@@ -177,7 +178,7 @@ class SendMail(Resource):
                 'message': '用户名不存在'}, 403
         email = req.get('email')
         user_email = user.to_dict()['email']
-        if user_email!= email:
+        if user_email != email:
             return{
                 'success': False,
                 'message': '邮箱地址不正确'}, 403
@@ -237,6 +238,7 @@ class ActivateUser(Resource):
             'success': True,
             'message': '用户激活成功'}
 
+
 class ChangeMail(Resource):
     def post(self):
         """
@@ -273,8 +275,58 @@ class ChangeMail(Resource):
             return{
                 'success': False,
                 'message': 'authkey无效'}, 403
-        user_ref.update({u'email': new_email,u'activate': False})
+        user_ref.update({u'email': new_email, u'activate': False})
         return{
             'success': True,
             'message': '邮箱更改成功'}
 
+
+class BindAuthor(Resource):
+    def psot(self):
+        """
+        @@@
+        ## 认领作者
+
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   |      |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    author_id    |    false    |    string   |    认领的作者id   |
+
+        ### return
+        - #### data
+        > | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   |    用于验证身份的token    |
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('author_id', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        author_id = req.get('author_id')
+        username = verify_token(token)
+        author_ref = db.collection('author').document(username)
+        user_ref = db.collection('user').document(username)
+        author = author_ref.get()
+        if not author.exists:
+            return{
+                'success': False,
+                'message': '作者不存在'}, 403
+        if 'bind_user' in author.to_dict():
+            return{
+                'success': False,
+                'message': '作者已被认领'}, 403
+        author_ref.update({u'bind_user': username})
+        user_ref.update({u'bind_author': author_id})
+        return{
+            'success': True,
+            'message': '认领成功'}
