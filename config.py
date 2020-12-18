@@ -22,3 +22,12 @@ class Config(object):
     API_DOC_MEMBER = ['api', 'platform']
     # 需要排除的 RESTful Api 文档
     RESTFUL_API_DOC_EXCLUDE = []
+
+    ##邮件相关
+    
+    MAIL_SERVER = 'smtpdm.aliyun.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = 'noreply@gugoo.xyz'
+    MAIL_PASSWORD = 'ALyzy981227'
+    MAIL_DEFAULT_SENDER = 'noreply@gugoo.xyz'

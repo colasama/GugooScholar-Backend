@@ -1,17 +1,14 @@
 from app.common.util import db
+from app.common.util import mail
 from config import Config
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
+from flask_mail import Message
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
 def create_token(user_id):
-    """
-    生成token
-    :param user_id: 用户id
-    :return:
-    """
     s = Serializer(Config.SECRET_KEY,
                    expires_in=Config.TOKEN_EXPIRATION)
     token = s.dumps({"id": user_id}).decode('ascii')
@@ -19,17 +16,28 @@ def create_token(user_id):
 
 
 def verify_token(token):
-    '''
-    校验token
-    :param token:
-    :return: 用户信息 or None
-    '''
     s = Serializer(Config.SECRET_KEY)
     try:
         data = s.loads(token)
     except Exception:
         return None
     return data["id"]
+
+
+def create_authkey(email, user_id):
+    s = Serializer(Config.SECRET_KEY,
+                   expires_in=7200)
+    token = s.dumps({"email": email, "id": user_id}).decode('ascii')
+    return token
+
+
+def verify_authkey(token):
+    s = Serializer(Config.SECRET_KEY)
+    try:
+        data = s.loads(token)
+    except Exception:
+        return None
+    return data
 
 
 class Register(Resource):
@@ -115,8 +123,8 @@ class Login(Resource):
         parser.add_argument('username', type=str, required=True)
         parser.add_argument("password", type=str, required=True)
         req = parser.parse_args()
-        username = req['username']
-        password = req['password']
+        username = req.get('username')
+        password = req.get('password')
         users = db.collection('user')
         user = users.document(username).get()
         if not user.exists:
@@ -133,3 +141,93 @@ class Login(Resource):
             return{
                 'success': False,
                 'message': '用户名或密码错误'}, 403
+
+
+class SendMail(Resource):
+    def post(self):
+        """
+        @@@
+        ## 发送验证邮件
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    username    |    false    |    string   |    用户名   |
+        |    email    |    false    |    string   |    发送邮箱   |
+        |    url    |    false    |    string   |   邮件内包含的链接    |
+
+        示例： url为https://gugoo.fewings.xyz/#/auth
+        则邮件内链接为：https://gugoo.fewings.xyz/#/auth?authkey=<authkey>
+
+        ### return
+        无data
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('username', type=str, required=True)
+        parser.add_argument("email", type=str, required=True)
+        parser.add_argument("url", type=str, required=True)
+        req = parser.parse_args()
+        username = req.get('username')
+        users = db.collection('user')
+        user = users.document(username).get()
+        if not user.exists:
+            return{
+                'success': False,
+                'message': '用户名不存在'}, 403
+        email = req.get('email')
+        url = req.get('url')
+        msg = Message()
+        msg.add_recipient(email)
+        url += ('?authkey=' + create_authkey(email, username))
+        msg.subject = '咕鸽学术帐号电子邮件验证'
+        msg.html = f'''<p>尊敬的{username}：您好！</p>
+                    <p>请点击以下链接验证您的电子邮件地址，以继续您的操作。</p>
+                    <p><a href='{url}'>{url}</a></p>
+                    <p>链接两小时内有效。</p>
+                    <p>如果未曾要求验证该地址，您可以忽略此电子邮件。</p>
+                    <p>此致</p>
+                    <p>咕鸽学术团队敬上</p>'''
+        msg.send(mail)
+        return{
+            'success': True,
+            'message': '发送成功'}
+
+
+class ActivateUser(Resource):
+    def post(self):
+        """
+        @@@
+        ## 通过authkey激活用户，使其activate字段为True
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    authkey    |    false    |    string   |    邮件链接里的authkey    |
+
+        ### return
+        无data
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('authkey', type=str, required=True)
+        req = parser.parse_args()
+        authkey = req.get('authkey')
+        data = verify_authkey(authkey)
+        if data == None:
+            return{
+                'success': False,
+                'message': 'authkey无效'}, 403
+        username = data['id']
+        email = data['email']
+        users = db.collection('user')
+        user_ref = users.document(username)
+        user = user_ref.get().to_dict()
+        if user['email'] != email:
+            return{
+                'success': False,
+                'message': '邮箱地址不正确'}, 403
+        user_ref.update({u'activate': True})
+        return{
+            'success': True,
+            'message': '用户激活成功'}

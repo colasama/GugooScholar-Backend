@@ -6,12 +6,12 @@ from flask_compress import Compress
 from flask_cors import CORS
 
 
-from app.resources import help, user, author, paper
-
-
 # app init
 app = Flask(__name__)
 app.config.from_object(Config)
+from app.resources import help, user, author, paper
+
+#add api
 api = Api(app)
 # help
 api.add_resource(help.Help, '/')
@@ -32,6 +32,8 @@ api.add_resource(paper.GetField,'/paper/field')
 #user
 api.add_resource(user.Register,'/user/register')
 api.add_resource(user.Login,'/user/login')
+api.add_resource(user.SendMail,'/user/sendmail')
+api.add_resource(user.ActivateUser,'/user/activate')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
 #压缩
