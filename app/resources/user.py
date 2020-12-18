@@ -176,6 +176,11 @@ class SendMail(Resource):
                 'success': False,
                 'message': '用户名不存在'}, 403
         email = req.get('email')
+        user_email = user.to_dict()['email']
+        if user_email!= email:
+            return{
+                'success': False,
+                'message': '邮箱地址不正确'}, 403
         url = req.get('url')
         msg = Message()
         msg.add_recipient(email)
@@ -226,8 +231,50 @@ class ActivateUser(Resource):
         if user['email'] != email:
             return{
                 'success': False,
-                'message': '邮箱地址不正确'}, 403
+                'message': 'authkey无效'}, 403
         user_ref.update({u'activate': True})
         return{
             'success': True,
             'message': '用户激活成功'}
+
+class ChangeMail(Resource):
+    def post(self):
+        """
+        @@@
+        ## 更改邮箱地址，更改完成后，会变成未激活（因为只验证了老地址）
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    authkey    |    false    |    string   |    邮件链接里的authkey    |
+        |    email    |    false    |    string   |    新的Email地址    |
+
+        ### return
+        无data
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('authkey', type=str, required=True)
+        parser.add_argument('email', type=str, required=True)
+        req = parser.parse_args()
+        authkey = req.get('authkey')
+        new_email = req.get('email')
+        data = verify_authkey(authkey)
+        if data == None:
+            return{
+                'success': False,
+                'message': 'authkey无效'}, 403
+        username = data['id']
+        email = data['email']
+        users = db.collection('user')
+        user_ref = users.document(username)
+        user = user_ref.get().to_dict()
+        if user['email'] != email:
+            return{
+                'success': False,
+                'message': 'authkey无效'}, 403
+        user_ref.update({u'email': new_email,u'activate': False})
+        return{
+            'success': True,
+            'message': '邮箱更改成功'}
+

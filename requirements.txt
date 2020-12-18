@@ -2,6 +2,7 @@ Flask_Docs==0.2.2
 Flask_Compress==1.8.0
 Flask==1.1.2
 Flask_RESTful==0.3.8
+Flask-Mail==0.9.1
 sonic_client==0.0.5
 Flask_Cors==3.0.9
 Werkzeug==1.0.1
