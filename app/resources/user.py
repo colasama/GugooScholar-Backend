@@ -282,7 +282,7 @@ class ChangeMail(Resource):
 
 
 class BindAuthor(Resource):
-    def psot(self):
+    def post(self):
         """
         @@@
         ## 认领作者
