@@ -47,7 +47,9 @@ class Register(Resource):
         @@@
         ## 用户注册
         ### args
+
         参数位于body
+
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
         |    username    |    false    |    string   |    用户名，不能重复    |
@@ -59,9 +61,7 @@ class Register(Resource):
 
         ### return
         - #### data
-        > | 字段 | 可能不存在 | 类型 | 备注 |
-        |--------|--------|--------|--------|
-        |    id    |    false    |    string   |    用户id    |
+        > 返回注册的用户信息
         @@@
         """
         parser = RequestParser()
@@ -158,7 +158,7 @@ class SendMail(Resource):
         |    url    |    false    |    string   |   邮件内包含的链接    |
 
         示例： url为https://gugoo.fewings.xyz/#/auth
-        则邮件内链接为：https://gugoo.fewings.xyz/#/auth?authkey=<authkey>
+        则邮件内链接为：https://gugoo.fewings.xyz/#/auth?authkey=xxxxxxxxxx
 
         ### return
         无data
