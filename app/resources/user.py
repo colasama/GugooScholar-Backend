@@ -314,7 +314,7 @@ class BindAuthor(Resource):
         token = req.get('token')
         author_id = req.get('author_id')
         username = verify_token(token)
-        author_ref = db.collection('author').document(username)
+        author_ref = db.collection('author').document(author_id)
         user_ref = db.collection('user').document(username)
         author = author_ref.get()
         if not author.exists:
