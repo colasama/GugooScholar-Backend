@@ -17,7 +17,6 @@ def get_authors(authors: list):
         else:
             author = {'name': authors[i]}
         authors[i] = author
-    print(authors)
 
 
 def get_venue(paper: dict):

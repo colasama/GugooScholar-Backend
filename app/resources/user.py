@@ -330,3 +330,30 @@ class BindAuthor(Resource):
         return{
             'success': True,
             'message': '认领成功'}
+
+
+class UserInfo(Resource):
+    def get(self, username):
+        """
+        @@@
+        ## 根据用户名获取用户信息
+
+        ### args
+
+        无（url传参）
+
+        ### return
+        - #### data
+        > 包含用户信息的json，字段与注册时的参数基本基本一致
+        @@@
+        """
+        user = db.collection('user').document(username).get()
+        if not user.exists:
+            return{
+                'success': False,
+                'message': '用户不存在'}, 404
+        user_dict = user.to_dict()
+        user_dict.pop('password')
+        return{
+            'success': True,
+            'data': user_dict}

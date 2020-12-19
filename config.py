@@ -24,7 +24,6 @@ class Config(object):
     RESTFUL_API_DOC_EXCLUDE = []
 
     ##邮件相关
-    
     MAIL_SERVER = 'smtpdm.aliyun.com'
     MAIL_PORT = 465
     MAIL_USE_SSL = True
