@@ -121,6 +121,49 @@ class AuthorDoc(Resource):
         }
 
 
+class AuthorFund(Resource):
+    def get(self, author_id):
+        """
+        @@@
+        ## 获取该作者的项目
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    start_after   |    true    |    string   |    偏移游标    |
+
+
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |        |
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument("start_after", type=str,
+                            location="args", required=False)
+        req = parser.parse_args()
+        start_after = req.get("start_after")
+        ref = db.collection('fund').where(
+            u'author_id', u'==', author_id)
+        funds = []
+        start_after = db.collection('fund').document(start_after).get()
+        if start_after.exists:
+            ref = ref.start_after(start_after).limit(20).stream()
+        else:
+            ref = ref.limit(20).stream()
+        for fund in ref:
+            p_id = fund.id
+            fund = fund.to_dict()
+            fund['id'] = p_id
+            funds.append(fund)
+        return{
+            'success': True,
+            'data': funds
+        }
+
+
 class AuthorByOrg(Resource):
     def get(self):
         """

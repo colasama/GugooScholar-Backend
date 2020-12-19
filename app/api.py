@@ -9,7 +9,7 @@ from flask_cors import CORS
 # app init
 app = Flask(__name__)
 app.config.from_object(Config)
-from app.resources import help, user, author, paper
+from app.resources import help, user, author, paper, fund
 
 #add api
 api = Api(app)
@@ -19,6 +19,7 @@ api.add_resource(help.Help, '/')
 api.add_resource(author.SearchAuthor, '/author/search')
 api.add_resource(author.AuthorByID, '/author/<string:author_id>')
 api.add_resource(author.AuthorDoc,'/author/<string:author_id>/paper')
+api.add_resource(author.AuthorFund,'/author/<string:author_id>/fund')
 api.add_resource(author.AuthorByOrg,'/author/byorg')
 api.add_resource(author.AuthorRank,'/author/rank')
 api.add_resource(author.AuthorRelation,'/author/<string:author_id>/relation')
@@ -30,6 +31,9 @@ api.add_resource(paper.SearchPaper,'/paper/search')
 api.add_resource(paper.PaperDoi,'/paper/doi')
 api.add_resource(paper.PaperVenue,'/paper/venue')
 api.add_resource(paper.GetField,'/field')
+#fund
+api.add_resource(fund.FundByID,'/fund/<string:fund_id>')
+api.add_resource(fund.Searchfund,'/fund/search')
 #user
 api.add_resource(user.Register,'/user/register')
 api.add_resource(user.Login,'/user/login')
