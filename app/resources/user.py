@@ -1,44 +1,13 @@
 from app.resources import author
 from app.common.util import db
 from app.common.util import mail
-from config import Config
+from app.common.util import create_token, verify_token, create_authkey, verify_authkey
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from flask_mail import Message
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import check_password_hash, generate_password_hash
-
-
-def create_token(user_id):
-    s = Serializer(Config.SECRET_KEY,
-                   expires_in=Config.TOKEN_EXPIRATION)
-    token = s.dumps({"id": user_id}).decode('ascii')
-    return token
-
-
-def verify_token(token):
-    s = Serializer(Config.SECRET_KEY)
-    try:
-        data = s.loads(token)
-    except Exception:
-        return None
-    return data["id"]
-
-
-def create_authkey(email, user_id):
-    s = Serializer(Config.SECRET_KEY,
-                   expires_in=7200)
-    token = s.dumps({"email": email, "id": user_id}).decode('ascii')
-    return token
-
-
-def verify_authkey(token):
-    s = Serializer(Config.SECRET_KEY)
-    try:
-        data = s.loads(token)
-    except Exception:
-        return None
-    return data
+from config import Config
 
 
 class Register(Resource):
@@ -314,6 +283,10 @@ class BindAuthor(Resource):
         token = req.get('token')
         author_id = req.get('author_id')
         username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}, 403
         author_ref = db.collection('author').document(author_id)
         user_ref = db.collection('user').document(username)
         author = author_ref.get()
@@ -357,3 +330,63 @@ class UserInfo(Resource):
         return{
             'success': True,
             'data': user_dict}
+
+
+class ReportBind(Resource):
+    def post(self):
+        """
+        @@@
+        ## 申诉被冒领的作者
+
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   |      |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    author_id    |    false    |    string   |    认领的作者id   |
+        |    description    |    false    |    string   |    申诉理由   |
+
+        ### return
+        - #### data
+        > 返回创建的申诉
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('author_id', type=str, required=True)
+        parser.add_argument('description', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        author_id = req.get('author_id')
+        description = req.get('description')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}, 403
+        author_ref = db.collection('author').document(author_id)
+        author = author_ref.get()
+        if not author.exists:
+            return{
+                'success': False,
+                'message': '作者不存在'}, 403
+        if not 'bind_user' in author.to_dict():
+            return{
+                'success': False,
+                'message': '作者未被认领'}, 403
+        data = {
+            'author_id': author_id,
+            'username': username,
+            'description': description,
+            'status': 0,
+        }
+        db.collection('report').add(data)
+        return{
+            'success': True,
+            'data': data}

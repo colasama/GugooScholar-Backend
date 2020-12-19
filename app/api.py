@@ -37,6 +37,7 @@ api.add_resource(user.ActivateUser,'/user/activate')
 api.add_resource(user.ChangeMail,'/user/changemail')
 api.add_resource(user.BindAuthor,'/user/bindauthor')
 api.add_resource(user.UserInfo,'/user/<string:username>/info')
+api.add_resource(user.ReportBind,'/user/reportbind')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
 #压缩
