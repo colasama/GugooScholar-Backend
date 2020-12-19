@@ -229,7 +229,7 @@ class AuthorRelation(Resource):
         > | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
         |   \   |    false    |    列表   |    有合作关系的作者，仅保留前20位    |
-        
+
         相比与一般的作者数据，返回地数据中增加了weight，表示合作篇数
         @@@
         """
@@ -264,4 +264,37 @@ class AuthorRelation(Resource):
         return{
             'success': True,
             'data': auhtors,
+        }
+
+
+class FieldAuthor(Resource):
+    def get(self, field):
+        """
+        @@@
+        ## 根据领域获取作者（该接口最多返回前30个作者）
+        ### args
+
+        无（url传参）
+
+        ### return
+        - #### data
+        >  | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |   \   |    false    |    list   |    属于该领域的作者    |
+        @@@
+        """
+        paper_ids = querycl.query(
+            'paperK', 'keywords', terms=field, limit=30)
+        authors = []
+        for id in paper_ids:
+            paper = db.collection('paper').document(id).get()
+            if paper.exists:
+                paper = paper.to_dict()
+                author = db.collection('author').document(
+                    paper['authors'][0]).get()
+                if author.exists:      
+                    authors.append(author.to_dict())
+        return{
+            'success': True,
+            'data': authors,
         }
