@@ -333,10 +333,11 @@ class FieldAuthor(Resource):
             paper = db.collection('paper').document(id).get()
             if paper.exists:
                 paper = paper.to_dict()
-                author = db.collection('author').document(
-                    paper['authors'][0]).get()
-                if author.exists:      
-                    authors.append(author.to_dict())
+                if 'authors' in paper and len(paper['authors']) > 0:
+                    author = db.collection('author').document(
+                        paper['authors'][0]).get()
+                    if author.exists:
+                        authors.append(author.to_dict())
         return{
             'success': True,
             'data': authors,
