@@ -332,6 +332,64 @@ class UserInfo(Resource):
             'data': user_dict}
 
 
+class ModifyInfo(object):
+    def post(self):
+        """
+        @@@
+        ## 用户修改个人信息
+
+
+        ## header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   |      |
+
+        ### args
+
+        参数位于body
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    name    |    true    |    string   |   真实姓名   |
+        |    introduction    |    true    |    string   |   自我介绍   |
+        |    location    |    true    |    string   |   用户位置   |
+
+        ### return
+        - #### data
+        > 返回用户信息
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument("name", type=str, required=False)
+        parser.add_argument("introduction", type=str, required=False)
+        parser.add_argument("location", type=str, required=False)
+        req = parser.parse_args()
+        token = req.get('token')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}, 403
+        name = req.get("name")
+        introduction = req.get("introduction")
+        location = req.get("location")
+        user_ref = db.collection('user').document(username)
+        if name != None:
+            user_ref.update({u'name': name})
+        if introduction != None:
+            user_ref.update({u'introduction': introduction})
+        if location != None:
+            user_ref.update({u'location': location})
+        data = user_ref.get().to_dict()
+        data.pop('password')
+        return{
+            'success': True,
+            'data': data}
+
+
 class ReportBind(Resource):
     def post(self):
         """
