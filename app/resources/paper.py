@@ -21,11 +21,15 @@ def get_authors(authors: list):
 
 def get_venue(paper: dict):
     if 'venue' in paper and isinstance(paper['venue'],str):
-        venue = db.collection('venue').document(paper['venue']).get()
-        if venue.exists:
-            v_id = paper['venue']
-            paper['venue'] = venue.to_dict()
-            paper['venue']['id'] = v_id
+        if paper['venue'].isalnum():
+            venue = db.collection('venue').document(paper['venue']).get()
+            if venue.exists:
+                v_id = paper['venue']
+                paper['venue'] = venue.to_dict()
+                paper['venue']['id'] = v_id
+            else:
+                name = paper['venue']
+                paper['venue'] = {'name': name}
         else:
             name = paper['venue']
             paper['venue'] = {'name': name}
@@ -64,6 +68,9 @@ class PaperByID(Resource):
         |    isbn    |    ture    |    string   |        |
         |    pdf    |    ture    |    string   |    原文链接    |
         |    url    |    ture    |    list   |    相关链接    |
+
+        注意作者列表中仅前十个为详细信息，之后的仅有作者id或姓名
+
         @@@
         """
         paper = db.collection('paper').document(paper_id).get()
@@ -186,7 +193,7 @@ class SearchPaper(Resource):
                 paper = paper.to_dict()
                 paper['id'] = id
                 get_venue(paper)
-                get_authors(paper['authors'])
+                #get_authors(paper['authors'])
                 papers.append(paper)
         return{'data': papers}
 
