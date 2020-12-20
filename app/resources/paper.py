@@ -193,7 +193,7 @@ class SearchPaper(Resource):
                 paper = paper.to_dict()
                 paper['id'] = id
                 get_venue(paper)
-                #get_authors(paper['authors'])
+                get_authors(paper['authors'])
                 papers.append(paper)
         return{'data': papers}
 
