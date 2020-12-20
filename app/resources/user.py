@@ -289,7 +289,12 @@ class BindAuthor(Resource):
                 'message': 'token无效'}, 403
         author_ref = db.collection('author').document(author_id)
         user_ref = db.collection('user').document(username)
+        user = user_ref.get()
         author = author_ref.get()
+        if user.to_dict()['activate'] == False:
+            return{
+                'success': False,
+                'message': '用户未激活'}, 403
         if not author.exists:
             return{
                 'success': False,
