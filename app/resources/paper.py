@@ -9,7 +9,7 @@ import json
 
 
 def get_authors(authors: list):
-    for i in range(len(authors)):
+    for i in range(min(10,len(authors))):
         author = db.collection('author').document(authors[i]).get()
         if author.exists:
             author = author.to_dict()
@@ -20,7 +20,7 @@ def get_authors(authors: list):
 
 
 def get_venue(paper: dict):
-    if 'venue' in paper:
+    if 'venue' in paper and isinstance(paper['venue'],str):
         venue = db.collection('venue').document(paper['venue']).get()
         if venue.exists:
             v_id = paper['venue']
@@ -29,6 +29,8 @@ def get_venue(paper: dict):
         else:
             name = paper['venue']
             paper['venue'] = {'name': name}
+    elif 'venue' in paper:
+        paper.pop('venue')
 
 
 class PaperByID(Resource):
