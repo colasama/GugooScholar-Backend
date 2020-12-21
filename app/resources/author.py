@@ -46,6 +46,7 @@ class SearchAuthor(Resource):
         authors = []
         for author in authors_ref:
             id = author.id
+            author = author.to_dict()
             author['id'] = id
             authors.append(author)
         return{'data': authors}
