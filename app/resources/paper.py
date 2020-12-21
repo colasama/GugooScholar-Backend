@@ -130,9 +130,9 @@ class PaperRank(Resource):
             ref = db.collection('paper').order_by(order_by, direction=desc)
         start_after = db.collection('paper').document(start_after).get()
         if start_after.exists:
-            ref = ref.start_after(start_after).limit(20).stream()
+            ref = ref.start_after(start_after).limit(20).get()
         else:
-            ref = ref.limit(20).stream()
+            ref = ref.limit(20).get()
         for paper in ref:
             a_id = paper.id
             paper = paper.to_dict()
@@ -229,7 +229,7 @@ class PaperDoi(Resource):
         req = parser.parse_args()
         doi = req.get("doi")
         ref = db.collection('paper').where(
-            u'doi', u'==', doi).limit(1).stream()
+            u'doi', u'==', doi).limit(1).get()
         papers = []
         for paper in ref:
             p_id = paper.id
@@ -274,9 +274,9 @@ class PaperVenue(Resource):
         ref = db.collection('paper').where(u'venue', u'==', venue)
         start_after = db.collection('paper').document(start_after).get()
         if start_after.exists:
-            ref = ref.start_after(start_after).limit(20).stream()
+            ref = ref.start_after(start_after).limit(20).get()
         else:
-            ref = ref.limit(20).stream()
+            ref = ref.limit(20).get()
         papers = []
         for paper in ref:
             p_id = paper.id

@@ -108,9 +108,9 @@ class AuthorDoc(Resource):
         papers = []
         start_after = db.collection('paper').document(start_after).get()
         if start_after.exists:
-            ref = ref.start_after(start_after).limit(20).stream()
+            ref = ref.start_after(start_after).limit(20).get()
         else:
-            ref = ref.limit(20).stream()
+            ref = ref.limit(20).get()
         for paper in ref:
             p_id = paper.id
             paper = paper.to_dict()
@@ -153,9 +153,9 @@ class AuthorFund(Resource):
         funds = []
         start_after = db.collection('fund').document(start_after).get()
         if start_after.exists:
-            ref = ref.start_after(start_after).limit(20).stream()
+            ref = ref.start_after(start_after).limit(20).get()
         else:
-            ref = ref.limit(20).stream()
+            ref = ref.limit(20).get()
         for fund in ref:
             p_id = fund.id
             fund = fund.to_dict()
@@ -203,9 +203,9 @@ class AuthorByOrg(Resource):
         ref = db.collection('author').where(u'orgs', u'==', org)
         start_after = db.collection('author').document(start_after).get()
         if start_after.exists:
-            ref = ref.start_after(start_after).limit(20).stream()
+            ref = ref.start_after(start_after).limit(20).get()
         else:
-            ref = ref.limit(20).stream()
+            ref = ref.limit(20).get()
         for author in ref:
             a_id = author.id
             author = author.to_dict()
@@ -252,9 +252,9 @@ class AuthorRank(Resource):
             ref = db.collection('author').order_by(order_by, direction=desc)
         start_after = db.collection('author').document(start_after).get()
         if start_after.exists:
-            ref = ref.start_after(start_after).limit(20).stream()
+            ref = ref.start_after(start_after).limit(20).get()
         else:
-            ref = ref.limit(20).stream()
+            ref = ref.limit(20).get()
         for author in ref:
             a_id = author.id
             author = author.to_dict()
@@ -287,7 +287,7 @@ class AuthorRelation(Resource):
         ref = db.collection('paper').where(
             u'authors', u'array_contains', author_id)
         weight = {}
-        ref = ref.limit(100).stream()
+        ref = ref.limit(100).get()
         for paper in ref:
             paper = paper.to_dict()
             authors = paper['authors']
