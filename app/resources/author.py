@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
+from google import auth
 
 from app.common.util import db
 from app.common.util import querycl
@@ -37,9 +38,14 @@ class SearchAuthor(Resource):
         offset = req.get("offset")
         author_ids = querycl.query(
             "author", "name", terms=words, offset=offset, limit=20)
-        authors = []
+        authors_ref = []
         for id in author_ids:
-            author = db.collection('author').document(id).get().to_dict()
+            author = db.collection('author').document(id)
+            authors_ref.append(author)
+        authors_ref = db.get_all(authors_ref)
+        authors = []
+        for author in authors_ref:
+            id = author.id
             author['id'] = id
             authors.append(author)
         return{'data': authors}

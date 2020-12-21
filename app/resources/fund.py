@@ -88,10 +88,15 @@ class Searchfund(Resource):
                 'message': '检索类型错误'}, 400
         fund_ids = querycl.query(
             search_db, search_type, terms=words, offset=offset, limit=20)
-        funds = []
+        funds_ref = []
         for id in fund_ids:
-            fund = db.collection('fund').document(id).get()
-            if fund.exists:
+            fund = db.collection('fund').document(id)
+            funds_ref.append(fund)
+        funds_ref = db.get_all(funds_ref)
+        funds = []
+        for fund in funds_ref:
+            if fund != None:
+                id = fund.id
                 fund = fund.to_dict()
                 fund['id'] = id
                 author = db.collection('author').document(fund['author_id']).get().to_dict()

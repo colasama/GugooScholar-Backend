@@ -193,12 +193,17 @@ class SearchPaper(Resource):
                 'message': '检索类型错误'}, 400
         paper_ids = querycl.query(
             search_db, search_type, terms=words, offset=offset, limit=20)
-        papers = []
+        papers_ref = []
         for id in paper_ids:
-            paper = db.collection('paper').document(id).get()
-            if paper.exists:
+            paper = db.collection('paper').document(id)
+            papers_ref.append(paper)
+        papers_ref = db.get_all(papers_ref)
+        papers = []
+        for paper in papers_ref:
+            if paper != None:
+                p_id = paper.id
                 paper = paper.to_dict()
-                paper['id'] = id
+                paper['id'] = p_id
                 get_venue(paper)
                 get_authors(paper['authors'])
                 papers.append(paper)
