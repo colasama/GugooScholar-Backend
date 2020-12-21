@@ -6,6 +6,7 @@ from app.common.util import querycl
 from app.common.util import desc
 from app.resources.paper import get_authors, get_venue
 
+
 class SearchAuthor(Resource):
     def get(self):
         """
@@ -159,6 +160,11 @@ class AuthorFund(Resource):
             p_id = fund.id
             fund = fund.to_dict()
             fund['id'] = p_id
+            author = db.collection('author').document(
+                fund['author_id']).get().to_dict()
+            author['id'] = fund['author_id']
+            fund['author'] = author
+            fund.pop('author_id')
             funds.append(fund)
         return{
             'success': True,
