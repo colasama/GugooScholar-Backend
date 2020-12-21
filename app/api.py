@@ -9,7 +9,7 @@ from flask_cors import CORS
 # app init
 app = Flask(__name__)
 app.config.from_object(Config)
-from app.resources import help, user, author, paper, fund, admin
+from app.resources import help, user, author, paper, fund, admin, subscribe
 
 #add api
 api = Api(app)
@@ -52,6 +52,13 @@ api.add_resource(admin.PassReport, '/admin/report/pass')
 # api.add_resource(admin.CancelBindAuthor, '/admin/cancel_bind_author')   #取消用户认领
 api.add_resource(admin.ShowAllUsers, '/admin/user/all') 
 api.add_resource(admin.DeleteUser, '/admin/user/delete') 
+#subscribe
+api.add_resource(subscribe.SubscribeAuthor, '/subscribe/author')
+api.add_resource(subscribe.SubscribePaper, '/subscribe/paper')
+api.add_resource(subscribe.CancelSubscribeAuthor, '/subscribe/cancel/author')
+api.add_resource(subscribe.CancelSubscribePaper, '/subscribe/cancel/paper')
+api.add_resource(subscribe.ShowSubscribeAuthor, '/subscribe/show/author')
+api.add_resource(subscribe.ShowSubscribePaper, '/subscribe/show/paper')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
 #压缩
