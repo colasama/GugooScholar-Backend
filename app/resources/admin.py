@@ -1,5 +1,4 @@
 from google.cloud import firestore
-from six import class_types
 from app.common.util import db
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
@@ -180,7 +179,7 @@ class ShowUnhandleReports(Resource):
 class DenyReport(Resource):
     def post(self):
         """
-         @@@
+        @@@
         ## 拒绝用户的申诉请求
         **管理员拒绝用户的申请请求**
         ### header args
@@ -235,7 +234,7 @@ class DenyReport(Resource):
 class PassReport(Resource):
     def post(self):
         """
-         @@@
+        @@@
         ## 同意用户的申诉请求
         **管理员同意用户的申请请求**
 
@@ -396,6 +395,7 @@ class ShowAllUsers(Resource):
 class DeleteUser(Resource):
     def post(self):
         """
+        @@@
         ## 删除用户
         ### header args
 
