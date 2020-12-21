@@ -4,7 +4,7 @@ from flask_restful.reqparse import RequestParser
 from app.common.util import db
 from app.common.util import querycl
 from app.common.util import desc
-
+from app.resources.paper import get_authors, get_venue
 
 class SearchAuthor(Resource):
     def get(self):
@@ -114,6 +114,8 @@ class AuthorDoc(Resource):
             p_id = paper.id
             paper = paper.to_dict()
             paper['id'] = p_id
+            get_venue(paper)
+            get_authors(paper['authors'])
             papers.append(paper)
         return{
             'success': True,
