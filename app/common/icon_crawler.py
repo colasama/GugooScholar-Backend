@@ -68,7 +68,7 @@ __data = [
     }
 ]
 
-def get_avater(author_id):
+def get_avatar(author_id):
 
     __data[0]['parameters']['ids'][0] = author_id
 

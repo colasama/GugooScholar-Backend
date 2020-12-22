@@ -4,7 +4,7 @@ from flask_restful.reqparse import RequestParser
 from app.common.util import db
 from app.common.util import querycl
 from app.common.util import desc
-from app.common.icon_crawler import get_avater
+from app.common.icon_crawler import get_avatar
 from app.resources.paper import get_authors, get_venue
 
 
@@ -73,14 +73,14 @@ class AuthorByID(Resource):
         |    h_index    |    true    |    int   |    H 指数    |
         |    n_pubs    |    ture    |    int   |    论文数（与论文数据库不完全匹配）    |
         |    n_citation    |    ture    |    int   |    被引量    |
-        |    avater    |    ture    |    str   |    头像链接    |
+        |    avatar    |    ture    |    str   |    头像链接    |
         @@@
         """
         auhtor = db.collection('author').document(author_id).get()
         if auhtor.exists:
             auhtor = auhtor.to_dict()
             auhtor['id'] = author_id
-            auhtor['avatar'] = get_avater(author_id)
+            auhtor['avatar'] = get_avatar(author_id)
             return{
                 'success': True,
                 'data': auhtor}
@@ -90,7 +90,7 @@ class AuthorByID(Resource):
                 'message': '作者不存在'}, 404
 
 
-class AuthorAvater(Resource):
+class AuthorAvatar(Resource):
     def get(self, author_id):
         """
         @@@
@@ -103,11 +103,11 @@ class AuthorAvater(Resource):
         - #### data
         > | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
-        |    avater    |    ture    |    str   |    头像链接    |
+        |    avatar    |    ture    |    str   |    头像链接    |
         @@@
         """
         data = {}
-        data['avater'] = get_avater(author_id)
+        data['avatar'] = get_avatar(author_id)
         return{
             'success': True,
             'data': data}
