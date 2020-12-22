@@ -90,7 +90,7 @@ class AuthorByID(Resource):
                 'message': '作者不存在'}, 404
 
 
-class AuthorAvater(Resource)):
+class AuthorAvater(Resource):
     def get(self, author_id):
         """
         @@@
