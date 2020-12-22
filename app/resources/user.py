@@ -335,7 +335,7 @@ class UserInfo(Resource):
             'data': user_dict}
 
 
-class ModifyInfo(object):
+class ModifyInfo(Resource):
     def post(self):
         """
         @@@

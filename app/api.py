@@ -43,6 +43,7 @@ api.add_resource(user.ChangeMail,'/user/changemail')
 api.add_resource(user.BindAuthor,'/user/bindauthor')
 api.add_resource(user.UserInfo,'/user/<string:username>/info')
 api.add_resource(user.ReportBind,'/user/reportbind')
+api.add_resource(user.ModifyInfo,'/user/modifyinfo')
 #admin
 api.add_resource(admin.AdminTest, '/admin/test')
 api.add_resource(admin.ShowAllReports, '/admin/report/all')
