@@ -1,10 +1,10 @@
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-from google import auth
 
 from app.common.util import db
 from app.common.util import querycl
 from app.common.util import desc
+from app.common.icon_crawler import get_avater
 from app.resources.paper import get_authors, get_venue
 
 
@@ -73,12 +73,14 @@ class AuthorByID(Resource):
         |    h_index    |    true    |    int   |    H 指数    |
         |    n_pubs    |    ture    |    int   |    论文数（与论文数据库不完全匹配）    |
         |    n_citation    |    ture    |    int   |    被引量    |
+        |    avater    |    ture    |    str   |    头像链接    |
         @@@
         """
         auhtor = db.collection('author').document(author_id).get()
         if auhtor.exists:
             auhtor = auhtor.to_dict()
             auhtor['id'] = author_id
+            auhtor['avatar'] = get_avater(author_id)
             return{
                 'success': True,
                 'data': auhtor}
