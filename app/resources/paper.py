@@ -191,6 +191,8 @@ class SearchPaper(Resource):
             return {
                 'success': False,
                 'message': '检索类型错误'}, 400
+        if words == '' or words.isspace():
+            return{'success': True,'data': []}
         paper_ids = querycl.query(
             search_db, search_type, terms=words, offset=offset, limit=20)
         papers_ref = []
@@ -207,7 +209,7 @@ class SearchPaper(Resource):
                 get_venue(paper)
                 get_authors(paper['authors'])
                 papers.append(paper)
-        return{'data': papers}
+        return{'success': True,'data': papers}
 
 
 class PaperDoi(Resource):

@@ -35,6 +35,8 @@ class SearchAuthor(Resource):
                             location="args", required=False)
         req = parser.parse_args()
         words = req.get("words")
+        if words == '' or words.isspace():
+            return{'success': True, 'data': []}
         offset = req.get("offset")
         author_ids = querycl.query(
             "author", "name", terms=words, offset=offset, limit=20)
@@ -49,7 +51,7 @@ class SearchAuthor(Resource):
             author = author.to_dict()
             author['id'] = id
             authors.append(author)
-        return{'data': authors}
+        return{'success': True, 'data': authors}
 
 
 class AuthorByID(Resource):

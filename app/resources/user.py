@@ -5,9 +5,7 @@ from app.common.util import create_token, verify_token, create_authkey, verify_a
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from flask_mail import Message
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import check_password_hash, generate_password_hash
-from config import Config
 
 
 class Register(Resource):

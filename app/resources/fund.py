@@ -86,6 +86,8 @@ class Searchfund(Resource):
             return {
                 'success': False,
                 'message': '检索类型错误'}, 400
+        if words == '' or words.isspace():
+            return{'success': True,'data': []}
         fund_ids = querycl.query(
             search_db, search_type, terms=words, offset=offset, limit=20)
         funds_ref = []
@@ -104,4 +106,4 @@ class Searchfund(Resource):
                 fund['author'] = author
                 fund.pop('author_id')
                 funds.append(fund)
-        return{'data': funds}
+        return{'success': True, 'data': funds}
