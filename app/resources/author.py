@@ -106,7 +106,7 @@ class AuthorAvater(Resource):
         |    avater    |    ture    |    str   |    头像链接    |
         @@@
         """
-        data = []
+        data = {}
         data['avater'] = get_avater(author_id)
         return{
             'success': True,
