@@ -18,6 +18,7 @@ api.add_resource(help.Help, '/')
 # author
 api.add_resource(author.SearchAuthor, '/author/search')
 api.add_resource(author.AuthorByID, '/author/<string:author_id>')
+api.add_resource(author.AuthorAvater,'/author/<string:author_id>/avater')
 api.add_resource(author.AuthorDoc,'/author/<string:author_id>/paper')
 api.add_resource(author.AuthorFund,'/author/<string:author_id>/fund')
 api.add_resource(author.AuthorByOrg,'/author/byorg')

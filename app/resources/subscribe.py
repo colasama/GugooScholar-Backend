@@ -1,5 +1,3 @@
-from google.cloud import firestore
-from proto import message
 from app.common.util import db
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser

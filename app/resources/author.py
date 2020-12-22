@@ -90,6 +90,29 @@ class AuthorByID(Resource):
                 'message': '作者不存在'}, 404
 
 
+class AuthorAvater(object):
+    def get(self, author_id):
+        """
+        @@@
+        ## 根据ID实时爬取作者头像
+        ### args
+
+        无
+
+        ### return
+        - #### data
+        > | 字段 | 可能不存在 | 类型 | 备注 |
+        |--------|--------|--------|--------|
+        |    avater    |    ture    |    str   |    头像链接    |
+        @@@
+        """
+        data = []
+        data['avater'] = get_avater(author_id)
+        return{
+            'success': True,
+            'data': data}
+
+
 class AuthorDoc(Resource):
     def get(self, author_id):
         """
