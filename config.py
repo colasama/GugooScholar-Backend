@@ -13,7 +13,7 @@ else:
 class Config(object):
     # 私钥
     SECRET_KEY = '\xc9ixnRb\xe40\xc4\xa5\x7f\x04\xd0y6\x02\x1f\x96\xeao+\x8a\x9f\xe4'
-    TOKEN_EXPIRATION = 3600
+    TOKEN_EXPIRATION = 7200
     # 使用 CDN
     #API_DOC_CDN = True
     # 禁用文档页面

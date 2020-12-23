@@ -1,5 +1,5 @@
 from app.resources import author
-from app.common.util import db,delete_field
+from app.common.util import db, delete_field
 from app.common.util import mail
 from app.common.util import create_token, verify_token, create_authkey, verify_authkey
 from flask_restful import Resource
@@ -301,9 +301,11 @@ class BindAuthor(Resource):
             return{
                 'success': False,
                 'message': '作者已被认领'}, 403
-        authors =  db.collection('author').where('bind_user','==',username).get()
+        authors = db.collection('author').where(
+            'bind_user', '==', username).get()
         for author in authors:
-            db.collection('author').document(author.id).update({u'bind_user': delete_field})
+            db.collection('author').document(
+                author.id).update({u'bind_user': delete_field})
         author_ref.update({u'bind_user': username})
         user_ref.update({u'bind_author': author_id})
         return{
@@ -394,6 +396,64 @@ class ModifyInfo(Resource):
         return{
             'success': True,
             'data': data}
+
+
+class changePassword(Resource):
+    def post(self):
+        """
+        @@@
+        ## 用户修改密码
+
+
+        ## header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   |      |
+
+        ### args
+
+        参数位于body
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    old_password    |    false    |    string   |   旧密码   |
+        |    new_password    |    false    |    string   |   新密码   |
+
+        ### return
+
+        无data
+        
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument("old_password", type=str, required=True)
+        parser.add_argument("new_password", type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        old_password = req.get('old_password')
+        new_password = req.get('new_password')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}, 403
+        user_ref = db.collection('users').document(username)
+        user = user_ref.get().to_dict()
+        pwhash = user['password']
+        if check_password_hash(pwhash, old_password):
+            new_pwhash = generate_password_hash(
+                new_password, method='pbkdf2:sha1', salt_length=8)
+            user_ref.update({'new_pwhash': new_pwhash})
+            return{
+                'success': True,
+                'message': '密码修改成功'}
+        else:
+            return{
+                'success': False,
+                'message': '旧密码不正确'}, 403
 
 
 class ReportBind(Resource):
