@@ -1,5 +1,5 @@
 from app.resources import author
-from app.common.util import db
+from app.common.util import db,delete_field
 from app.common.util import mail
 from app.common.util import create_token, verify_token, create_authkey, verify_authkey
 from flask_restful import Resource
@@ -301,6 +301,9 @@ class BindAuthor(Resource):
             return{
                 'success': False,
                 'message': '作者已被认领'}, 403
+        authors =  db.collection('author').where('bind_user','==',username).get()
+        for author in authors:
+            db.collection('author').document(author.id).update({u'bind_user': delete_field})
         author_ref.update({u'bind_user': username})
         user_ref.update({u'bind_author': author_id})
         return{

@@ -5,6 +5,8 @@ from google.cloud import firestore
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sonic import SearchClient
 
+
+delete_field = firestore.DELETE_FIELD
 db = firestore.Client()
 desc = firestore.Query.DESCENDING
 querycl = SearchClient("35.220.150.81", 1491, "YanG981227")
