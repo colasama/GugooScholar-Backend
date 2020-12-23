@@ -448,6 +448,7 @@ class ReportBind(Resource):
             'status': 0,
         }
         db.collection('report').add(data)
+        data['author'] = author.to_dict()
         return{
             'success': True,
             'data': data}
