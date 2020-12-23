@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
+from google import auth
 
 from app.common.util import db
 from app.common.util import querycl
@@ -12,15 +13,15 @@ class SearchAuthor(Resource):
     def get(self):
         """
         @@@
-        ## 搜索作者
-        ### args
+        # 搜索作者
+        # args
 
         | 参数名 | 是否可选 | 类型 | 备注 |
         |--------|--------|--------|--------|
         |    words    |    false    |    string   |    检索关键词    |
         |    offset    |    true    |    int   |    偏移量    |
 
-        ### return
+        # return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -58,12 +59,12 @@ class AuthorByID(Resource):
     def get(self, author_id):
         """
         @@@
-        ## 根据ID获取作者
-        ### args
+        # 根据ID获取作者
+        # args
 
         无
 
-        ### return
+        # return
         - #### data
         > | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -94,12 +95,12 @@ class AuthorAvatar(Resource):
     def get(self, author_id):
         """
         @@@
-        ## 根据ID实时爬取作者头像
-        ### args
+        # 根据ID实时爬取作者头像
+        # args
 
         无
 
-        ### return
+        # return
         - #### data
         > | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -117,15 +118,15 @@ class AuthorDoc(Resource):
     def get(self, author_id):
         """
         @@@
-        ## 获取该作者的论文
-        ### args
+        # 获取该作者的论文
+        # args
 
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
         |    start_after   |    true    |    string   |    偏移游标    |
 
 
-        ### return
+        # return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -162,15 +163,15 @@ class AuthorFund(Resource):
     def get(self, author_id):
         """
         @@@
-        ## 获取该作者的项目
-        ### args
+        # 获取该作者的项目
+        # args
 
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
         |    start_after   |    true    |    string   |    偏移游标    |
 
 
-        ### return
+        # return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -210,15 +211,15 @@ class AuthorByOrg(Resource):
     def get(self):
         """
         @@@
-        ## 根据机构获取作者
-        ### args
+        # 根据机构获取作者
+        # args
 
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
         |    org    |    false    |    string   |    机构名称    |
         |    start_after    |    true    |    string   |    偏移游标    |
 
-        ### return
+        # return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -255,8 +256,8 @@ class AuthorRank(Resource):
     def get(self):
         """
         @@@
-        ## 获取排序的作者列表
-        ### args
+        # 获取排序的作者列表
+        # args
 
         | 参数名 | 是否可选 | type | remark |
         |--------|--------|--------|--------|
@@ -264,7 +265,7 @@ class AuthorRank(Resource):
         |    start_after   |    true    |    string   |    偏移游标    |
 
         排序字段可选：h_index，n_pubs，n_citation, id，orgs(一般不用)
-        ### return
+        # return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -304,12 +305,12 @@ class AuthorRelation(Resource):
     def get(self, author_id):
         """
         @@@
-        ## 根据ID获取作者关系图谱
-        ### args
+        # 根据ID获取作者关系图谱
+        # args
 
         无
 
-        ### return
+        # return
         - #### data
         > | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -356,12 +357,12 @@ class FieldAuthor(Resource):
     def get(self, field):
         """
         @@@
-        ## 根据领域获取作者（该接口最多返回前30个作者）
-        ### args
+        # 根据领域获取作者（该接口最多返回前40个作者）
+        # args
 
         无（url传参）
 
-        ### return
+        # return
         - #### data
         >  | 字段 | 可能不存在 | 类型 | 备注 |
         |--------|--------|--------|--------|
@@ -369,17 +370,24 @@ class FieldAuthor(Resource):
         @@@
         """
         paper_ids = querycl.query(
-            'paperK', 'keywords', terms=field, limit=30)
-        authors = []
+            'paperK', 'keywords', terms=field, limit=40)
+        authors_ref = []
+        papers_ref = []
         for id in paper_ids:
-            paper = db.collection('paper').document(id).get()
-            if paper.exists:
-                paper = paper.to_dict()
-                if 'authors' in paper and len(paper['authors']) > 0:
-                    author = db.collection('author').document(
-                        paper['authors'][0]).get()
-                    if author.exists:
-                        authors.append(author.to_dict())
+            papers_ref.append(db.collection('paper').document(id))
+        papers_ref = db.get_all(papers_ref)
+        for paper in papers_ref:
+            paper = paper.to_dict()
+            if 'authors' in paper and len(paper['authors']) > 0:
+                authors_ref.append(db.collection('author').document(paper['authors'][0]))
+        authors_ref = db.get_all(authors_ref)
+        authors = []
+        for author in authors_ref:
+            a_id = author.id
+            author = author.to_dict()
+            if author != None:
+                author['id'] = a_id
+                authors.append(author)
         return{
             'success': True,
             'data': authors,
