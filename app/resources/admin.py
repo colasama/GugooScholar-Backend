@@ -247,7 +247,7 @@ class DenyReport(Resource):
             return{
                 'success':False,
                 'message':'该申诉信息已经处理'
-            }, 403
+            }, 200
         else:
             report_ref.update({u'status': 1})
         return{
@@ -309,7 +309,7 @@ class PassReport(Resource):
             if not 'bind_user' in author.to_dict():
                 return{
                     'success': False,
-                    'message': '作者未被认领'}, 403
+                    'message': '作者未被认领'}, 200
             #获得该作者绑定的用户名
             username = author.to_dict()['bind_user']
             cancel_bind_author(author_id, username)
