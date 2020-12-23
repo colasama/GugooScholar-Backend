@@ -114,6 +114,18 @@ class ShowAllReports(Resource):
         for report in ref:
             report_id= report.id
             report = report.to_dict()
+            author_id = report['author_id']
+            author = db.collection('author').document(author_id).get()
+            if not author.exists:
+                return{
+                    'success':False,
+                    'message':'Author不存在'
+                }, 403
+            else:
+                author = author.to_dict()
+                author['id'] = author_id
+                report['author'] = author
+                report.pop('author_id')
             report['report_id'] = report_id
             reports.append(report)
         return{
@@ -169,6 +181,18 @@ class ShowUnhandleReports(Resource):
         for report in ref:
             report_id = report.id
             report = report.to_dict()
+            author_id = report['author_id']
+            author = db.collection('author').document(author_id).get()
+            if not author.exists:
+                return{
+                    'success':False,
+                    'message':'Author不存在'
+                }, 403
+            else:
+                author = author.to_dict()
+                author['id'] = author_id
+                report['author'] = author
+                report.pop('author_id')
             report['report_id'] = report_id
             reports.append(report)
         return{
