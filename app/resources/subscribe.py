@@ -288,3 +288,104 @@ class ShowSubscribePaper(Resource):
             'success': True,
             'data': papers
         }, 200
+
+class AuthorIsSubscribed(Resource):
+    def post(self):
+        """
+        @@@
+        ## 判断是否已经订阅科研人员
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   | token  |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    author_id    |    false    |    string   |    订阅的作者id   |
+
+        ### return
+        是否订阅
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('author_id', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        author_id = req.get('author_id')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}
+        author_ref = db.collection('author').document(author_id)
+        author = author_ref.get()
+        if not author.exists:
+            return{
+                'success': False,
+                'message': '作者不存在'}
+        subscribes = db.collection('subscribe').where(u'username', u'==', username).where(u'author_id', u'==', author_id).get()
+        for subscribe in subscribes:
+            if subscribe.to_dict()['author_id'] == author_id:
+                return{
+                        'success':True,
+                        'message':'您已订阅该作者'
+                    }
+        return{
+            'success': False,
+            'data': '您未订阅该作者'}
+
+
+class PaperIsSubscribed(Resource):
+    def post(self):
+        """
+        @@@
+        ## 是否订阅论文
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   | token  |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    paper_id    |    false    |    string   |    订阅的论文id   |
+
+        ### return
+        是否订阅
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('paper_id', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        paper_id = req.get('paper_id')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}
+        paper_ref = db.collection('paper').document(paper_id)
+        paper = paper_ref.get()
+        if not paper.exists:
+            return{
+                'success': False,
+                'message': '论文不存在'}
+        subscribes = db.collection('subscribe').where(u'username', u'==', username).where(u'paper_id', u'==', paper_id).get()
+        for subscribe in subscribes:
+            if subscribe.to_dict()['paper_id'] == paper_id:
+                return{
+                        'success':True,
+                        'message':'您已订阅该论文'
+                    }
+        return{
+            'success': False,
+            'data': '您未订阅改论文'}
