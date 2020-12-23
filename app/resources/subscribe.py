@@ -392,3 +392,203 @@ class PaperIsSubscribed(Resource):
         return{
             'success': False,
             'data': '您未订阅改论文'}
+class SubscribeFund(Resource):
+    def post(self):
+        """
+        @@@
+        ## 订阅项目
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   | token  |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    fund_id    |    false    |    string   |    订阅的项目id   |
+
+        ### return
+        data
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('fund_id', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        fund_id = req.get('fund_id')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}, 403
+        fund_ref = db.collection('fund').document(fund_id)
+        fund = fund_ref.get()
+        if not fund.exists:
+            return{
+                'success': False,
+                'message': '项目不存在'}, 403
+        data = {
+            'username': username,
+            'fund_id':fund_id
+        }
+        subscribes = db.collection('subscribe').where(u'username', u'==', username).where(u'fund_id', u'==', fund_id).get()
+        for subscribe in subscribes:
+            if subscribe.to_dict()['fund_id'] == fund_id:
+                return{
+                        'success':False,
+                        'message':'您已订阅该项目'
+                    }, 403
+        db.collection('subscribe').add(data)
+        return{
+            'success': True,
+            'data': data}
+
+class CancelSubscribeFund(Resource):
+    def post(self):
+        """
+        @@@
+        ## 取消订阅项目
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   | token  |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    fund_id    |    false    |    string   |    订阅的项目id   |
+
+        ### return
+        无data
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('fund_id', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        fund_id = req.get('fund_id')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}, 403
+        subscribes = db.collection('subscribe').where(u'username', u'==', username).where(u'fund_id', u'==', fund_id).get()
+        for subscribe in subscribes:
+            db.collection('subscribe').document(subscribe.id).delete()
+            return{
+                'success':True,
+                'message':'取消订阅成功'
+            }
+        return{
+            'success':False,
+            'message':'您未订阅该项目'
+        }, 403
+    
+class ShowSubscribeFund(Resource):
+    def post(self):
+        """
+        @@@
+        ## 显示订阅的项目
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   | token  |
+
+        ### return
+        data 订阅的项目
+        @@@
+        """
+        print("显示订阅的项目")
+        parser = RequestParser()
+        parser.add_argument('token', type = str, required = True, location = 'headers')
+        req = parser.parse_args()
+        token = req.get('token')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success':False,
+                'message':'token无效'
+            }, 403
+        fund_ids = []
+        ref = db.collection('subscribe').where(u'username', u'==', username).get()
+        for fund in ref:
+            if 'fund_id' in fund.to_dict():
+                fund_ids.append(fund.to_dict()['fund_id'])
+        print(fund_ids)
+        funds = []
+        print(fund_ids)
+        for fund_id in fund_ids:
+            fund = db.collection('fund').document(fund_id).get()
+            if fund.exists:
+                fund = fund.to_dict()
+                fund['id'] = fund_id
+                author = db.collection('author').document(fund['author_id']).get().to_dict()
+                author['id'] = fund['author_id']
+                fund['author'] = author
+                fund.pop('author_id')
+                funds.append(fund)
+        print(funds)
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        return{
+            'success': True,
+            'data': funds
+        }, 200
+
+class FundIsSubscribed(Resource):
+    def post(self):
+        """
+        @@@
+        ## 是否订阅项目
+        ### header args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    token    |    false    |    string   | token  |
+
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    fund_id    |    false    |    string   |    订阅的项目id   |
+
+        ### return
+        是否订阅项目
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('token', type=str,
+                            required=True, location='headers')
+        parser.add_argument('fund_id', type=str, required=True)
+        req = parser.parse_args()
+        token = req.get('token')
+        fund_id = req.get('fund_id')
+        username = verify_token(token)
+        if username == None:
+            return{
+                'success': False,
+                'message': 'token无效'}
+        fund_ref = db.collection('fund').document(fund_id)
+        fund = fund_ref.get()
+        if not fund.exists:
+            return{
+                'success': False,
+                'message': '项目不存在'}
+        subscribes = db.collection('subscribe').where(u'username', u'==', username).where(u'fund_id', u'==', fund_id).get()
+        for subscribe in subscribes:
+            if subscribe.to_dict()['fund_id'] == fund_id:
+                return{
+                        'success':True,
+                        'message':'您已订阅该项目'
+                    }
+        return{
+            'success': False,
+            'data': '您未订阅该项目'}

@@ -63,6 +63,10 @@ api.add_resource(subscribe.ShowSubscribeAuthor, '/subscribe/show/author')
 api.add_resource(subscribe.ShowSubscribePaper, '/subscribe/show/paper')
 api.add_resource(subscribe.AuthorIsSubscribed, '/subscribe/author/subscribed')
 api.add_resource(subscribe.PaperIsSubscribed, '/subscribe/paper/subscribed')
+api.add_resource(subscribe.SubscribeFund, '/subscribe/fund')
+api.add_resource(subscribe.CancelSubscribeFund, '/subscribe/cancel/fund')
+api.add_resource(subscribe.ShowSubscribeFund, '/subscribe/show/fund')
+api.add_resource(subscribe.FundIsSubscribed, '/subscribe/fund/subscribed')
 #文档生成
 ApiDoc(app,title='Gugoo API Doc',version='0.1.1')
 #压缩
