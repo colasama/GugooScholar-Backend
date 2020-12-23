@@ -1,3 +1,4 @@
+from app.resources.paper import get_authors, get_venue
 from app.common.util import db
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
@@ -239,7 +240,7 @@ class ShowSubscribeAuthor(Resource):
             author = db.collection('author').document(author_id).get()
             if author.exists:
                 author = author.to_dict()
-                author['author_id'] = author_id
+                author['id'] = author_id
                 authors.append(author)
         return{
             'success': True,
@@ -283,6 +284,8 @@ class ShowSubscribePaper(Resource):
             if paper.exists:
                 paper = paper.to_dict()
                 paper['id'] = paper_id
+                get_venue(paper)
+                get_authors(paper['authors'])
                 papers.append(paper)
         return{
             'success': True,
