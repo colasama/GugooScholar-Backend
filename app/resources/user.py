@@ -398,7 +398,7 @@ class ModifyInfo(Resource):
             'data': data}
 
 
-class changePassword(Resource):
+class ChangePassword(Resource):
     def post(self):
         """
         @@@
@@ -423,7 +423,7 @@ class changePassword(Resource):
         ### return
 
         无data
-        
+
         @@@
         """
         parser = RequestParser()
@@ -446,7 +446,7 @@ class changePassword(Resource):
         if check_password_hash(pwhash, old_password):
             new_pwhash = generate_password_hash(
                 new_password, method='pbkdf2:sha1', salt_length=8)
-            user_ref.update({'new_pwhash': new_pwhash})
+            user_ref.update({'password': new_pwhash})
             return{
                 'success': True,
                 'message': '密码修改成功'}
@@ -454,6 +454,52 @@ class changePassword(Resource):
             return{
                 'success': False,
                 'message': '旧密码不正确'}, 403
+
+
+class ResetPassword(Resource):
+    def post(self):
+        """
+        @@@
+        ## 通过authkey设置密码（实现忘记密码的功能）
+        ### args
+
+        | 参数名 | 是否可选 | type | remark |
+        |--------|--------|--------|--------|
+        |    authkey    |    false    |    string   |    邮件链接里的authkey    |
+        |    new_password    |    false    |    string   |   新密码   |
+
+        ### return
+        
+        无data
+
+        @@@
+        """
+        parser = RequestParser()
+        parser.add_argument('authkey', type=str, required=True)
+        parser.add_argument('new_password', type=str, required=True)
+        req = parser.parse_args()
+        authkey = req.get('authkey')
+        new_password = req.get('new_password')
+        data = verify_authkey(authkey)
+        if data == None:
+            return{
+                'success': False,
+                'message': 'authkey无效'}, 403
+        username = data['id']
+        email = data['email']
+        users = db.collection('user')
+        user_ref = users.document(username)
+        user = user_ref.get().to_dict()
+        if user['email'] != email:
+            return{
+                'success': False,
+                'message': 'authkey无效'}, 403
+        new_pwhash = generate_password_hash(
+            new_password, method='pbkdf2:sha1', salt_length=8)
+        user_ref.update({u'password': new_pwhash})
+        return{
+            'success': True,
+            'message': '密码重置成功'}
 
 
 class ReportBind(Resource):
