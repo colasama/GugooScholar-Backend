@@ -1,4 +1,3 @@
-from app.resources import author
 from app.common.util import db, delete_field
 from app.common.util import mail
 from app.common.util import create_token, verify_token, create_authkey, verify_authkey
@@ -6,6 +5,7 @@ from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 from flask_mail import Message
 from werkzeug.security import check_password_hash, generate_password_hash
+import time
 
 
 class Register(Resource):
@@ -555,7 +555,9 @@ class ReportBind(Resource):
             'description': description,
             'status': 0,
         }
-        db.collection('report').add(data)
+        t = time.time()
+        r_id = str(int(round(t * 1000)))
+        db.collection('report').document(r_id).set(data)
         data['author'] = author.to_dict()
         return{
             'success': True,
