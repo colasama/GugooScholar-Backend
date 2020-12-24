@@ -77,7 +77,7 @@ def get_avatar(author_id):
     data = json.loads(res.text)
 
     if not data['data'][0]['succeed']:
-        raise RuntimeError('author not found')
+        return ''
 
     author_info = data['data'][0]['data'][0]
     avatar = author_info['avatar'] if 'avatar' in author_info else ''
