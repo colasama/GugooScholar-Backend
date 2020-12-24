@@ -440,7 +440,7 @@ class ChangePassword(Resource):
             return{
                 'success': False,
                 'message': 'token无效'}, 403
-        user_ref = db.collection('users').document(username)
+        user_ref = db.collection('user').document(username)
         user = user_ref.get().to_dict()
         pwhash = user['password']
         if check_password_hash(pwhash, old_password):
@@ -469,7 +469,7 @@ class ResetPassword(Resource):
         |    new_password    |    false    |    string   |   新密码   |
 
         ### return
-        
+
         无data
 
         @@@
@@ -487,8 +487,7 @@ class ResetPassword(Resource):
                 'message': 'authkey无效'}, 403
         username = data['id']
         email = data['email']
-        users = db.collection('user')
-        user_ref = users.document(username)
+        user_ref = db.collection('user').document(username)
         user = user_ref.get().to_dict()
         if user['email'] != email:
             return{
